@@ -1,1 +1,136 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin Login — GouriO Baishnab</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;
+ min-height:100vh;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ font-family:system-ui,-apple-system,"Noto Sans Bengali",sans-serif;
+ background:linear-gradient(135deg,#071b12,#123c29,#06140e);
+ color:#fff;
+}
+.login{
+ width:min(420px,92%);
+ padding:38px;
+ border:1px solid rgba(255,255,255,.18);
+ border-radius:28px;
+ background:rgba(255,255,255,.10);
+ backdrop-filter:blur(20px);
+ box-shadow:0 25px 80px rgba(0,0,0,.35);
+}
+.logo{
+ width:70px;height:70px;
+ margin:auto;
+ border-radius:22px;
+ display:grid;
+ place-items:center;
+ background:linear-gradient(135deg,#d8b45c,#fff0a8);
+ color:#143020;
+ font-size:30px;
+ font-weight:800;
+}
+h1{text-align:center;margin:20px 0 5px}
+.sub{text-align:center;opacity:.7;margin-bottom:28px}
+label{display:block;margin:15px 0 7px;font-size:14px}
+input{
+ width:100%;
+ padding:14px 15px;
+ border:1px solid rgba(255,255,255,.18);
+ border-radius:14px;
+ background:rgba(0,0,0,.2);
+ color:#fff;
+ outline:none;
+}
+input:focus{border-color:#d8b45c}
+button{
+ width:100%;
+ margin-top:22px;
+ padding:14px;
+ border:0;
+ border-radius:14px;
+ background:linear-gradient(135deg,#d8b45c,#f2d77e);
+ color:#17281d;
+ font-weight:800;
+ cursor:pointer;
+ transition:.25s;
+}
+button:hover{transform:translateY(-2px);box-shadow:0 10px 25px #0005}
+.error{
+ display:none;
+ margin-top:15px;
+ padding:12px;
+ border-radius:12px;
+ background:#8b202055;
+ color:#ffd4d4;
+ text-align:center;
+}
+.demo{
+ margin-top:20px;
+ text-align:center;
+ font-size:12px;
+ opacity:.55;
+}
+</style>
+</head>
 
+<body>
+
+<div class="login">
+ <div class="logo">ॐ</div>
+
+ <h1>GouriO Baishnab</h1>
+ <div class="sub">Administrator Login</div>
+
+ <form id="loginForm">
+  <label>Username</label>
+  <input id="username" autocomplete="username" required>
+
+  <label>Password</label>
+  <input id="password" type="password" autocomplete="current-password" required>
+
+  <button type="submit">Sign In to Admin</button>
+
+  <div class="error" id="error">
+   Username or password is incorrect.
+  </div>
+ </form>
+
+ <div class="demo">
+  Initial demo login: <b>admin</b> / <b>admin123</b>
+ </div>
+</div>
+
+<script>
+const DEFAULT_USER="admin";
+const DEFAULT_PASS="admin123";
+
+document.getElementById("loginForm").addEventListener("submit",function(e){
+ e.preventDefault();
+
+ const u=document.getElementById("username").value.trim();
+ const p=document.getElementById("password").value;
+
+ const saved=JSON.parse(localStorage.getItem("gouriAdmin")||"null");
+
+ const validUser=saved?.username || DEFAULT_USER;
+ const validPass=saved?.password || DEFAULT_PASS;
+
+ if(u===validUser && p===validPass){
+   localStorage.setItem("gouriAdminLoggedIn","true");
+   localStorage.setItem("gouriAdminLoginTime",Date.now());
+   location.href="dashboard.html";
+ }else{
+   document.getElementById("error").style.display="block";
+ }
+});
+</script>
+
+</body>
+</html>
