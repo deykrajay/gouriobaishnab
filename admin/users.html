@@ -1,1 +1,170 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin Users — GouriO Baishnab</title>
 
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;
+ background:#f3f6f3;
+ color:#17251d;
+ font-family:system-ui,-apple-system,"Noto Sans Bengali",sans-serif;
+}
+header{
+ background:#102d1e;
+ color:white;
+ padding:16px 25px;
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+}
+header a{
+ color:white;
+ text-decoration:none;
+ margin-right:20px;
+}
+header button{
+ color:white;
+ background:#ffffff15;
+ border:1px solid #ffffff33;
+ border-radius:9px;
+ padding:9px 14px;
+}
+main{max-width:900px;margin:auto;padding:35px 20px}
+.card{
+ background:#fff;
+ padding:25px;
+ border-radius:20px;
+ box-shadow:0 8px 30px #102d1e10;
+ margin-bottom:20px;
+}
+label{
+ display:block;
+ margin:14px 0 6px;
+ font-weight:700;
+}
+input{
+ width:100%;
+ padding:13px;
+ border:1px solid #d7e1d9;
+ border-radius:11px;
+ font:inherit;
+}
+button.save{
+ margin-top:20px;
+ padding:12px 20px;
+ border:0;
+ border-radius:11px;
+ background:#c9a84e;
+ color:#17251d;
+ font-weight:800;
+ cursor:pointer;
+}
+.warning{
+ background:#fff5db;
+ border:1px solid #f0db9a;
+ padding:15px;
+ border-radius:12px;
+ margin-bottom:20px;
+ line-height:1.6;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+ <div>
+  <a href="dashboard.html">← Dashboard</a>
+  <b>Admin Users</b>
+ </div>
+ <button onclick="logout()">Logout</button>
+</header>
+
+<main>
+
+<h1>Administrator Settings</h1>
+
+<div class="warning">
+ <b>Important:</b> This current GitHub Pages version stores administrator
+ credentials in the browser's local storage. It is suitable for a prototype,
+ but it is <b>not secure authentication for a production website</b>.
+</div>
+
+<div class="card">
+
+<h2>Change Login</h2>
+
+<label>Username</label>
+<input id="username">
+
+<label>New Password</label>
+<input id="password" type="password">
+
+<label>Confirm Password</label>
+<input id="confirm" type="password">
+
+<button class="save" onclick="saveUser()">Save Administrator</button>
+
+</div>
+
+<div class="card">
+ <h2>Current Administrator</h2>
+ <p>Username: <b id="currentUser"></b></p>
+</div>
+
+</main>
+
+<script>
+
+if(localStorage.getItem("gouriAdminLoggedIn")!=="true"){
+ location.href="login.html";
+}
+
+const saved=JSON.parse(localStorage.getItem("gouriAdmin")||"null");
+
+const username=saved?.username || "admin";
+
+document.getElementById("username").value=username;
+document.getElementById("currentUser").textContent=username;
+
+function saveUser(){
+
+ const u=document.getElementById("username").value.trim();
+ const p=document.getElementById("password").value;
+ const c=document.getElementById("confirm").value;
+
+ if(!u){
+  alert("Username is required.");
+  return;
+ }
+
+ if(p && p!==c){
+  alert("Passwords do not match.");
+  return;
+ }
+
+ const old=JSON.parse(localStorage.getItem("gouriAdmin")||"null");
+
+ localStorage.setItem("gouriAdmin",JSON.stringify({
+   username:u,
+   password:p || old?.password || "admin123"
+ }));
+
+ document.getElementById("currentUser").textContent=u;
+
+ alert("Administrator details saved.");
+}
+
+function logout(){
+ localStorage.removeItem("gouriAdminLoggedIn");
+ location.href="login.html";
+}
+
+</script>
+
+</body>
+</html>
