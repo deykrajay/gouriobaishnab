@@ -1,1 +1,342 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Content Manager — GouriO Baishnab</title>
 
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;
+ font-family:system-ui,-apple-system,"Noto Sans Bengali",sans-serif;
+ background:#f3f6f3;
+ color:#17251d;
+}
+header{
+ background:#102d1e;
+ color:white;
+ padding:16px 25px;
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+}
+header a{
+ color:white;
+ text-decoration:none;
+ margin-right:15px;
+}
+header button{
+ background:#ffffff15;
+ border:1px solid #ffffff33;
+ color:#fff;
+ border-radius:9px;
+ padding:9px 14px;
+ cursor:pointer;
+}
+main{
+ max-width:1300px;
+ margin:auto;
+ padding:30px 20px;
+}
+.toolbar{
+ display:flex;
+ justify-content:space-between;
+ gap:12px;
+ flex-wrap:wrap;
+ margin-bottom:20px;
+}
+.btn{
+ border:0;
+ border-radius:11px;
+ padding:11px 17px;
+ cursor:pointer;
+ font-weight:700;
+}
+.primary{
+ background:#c9a84e;
+ color:#17251d;
+}
+.secondary{
+ background:#fff;
+ border:1px solid #dbe4dc;
+}
+.editor{
+ display:none;
+ background:#fff;
+ border-radius:20px;
+ padding:25px;
+ margin-bottom:25px;
+ box-shadow:0 8px 30px #102d1e10;
+}
+label{
+ display:block;
+ margin:14px 0 6px;
+ font-weight:700;
+}
+input,textarea,select{
+ width:100%;
+ padding:12px 14px;
+ border:1px solid #d8e2da;
+ border-radius:11px;
+ font:inherit;
+ outline:none;
+}
+textarea{min-height:180px;resize:vertical}
+.row{
+ display:grid;
+ grid-template-columns:2fr 1fr;
+ gap:15px;
+}
+.table{
+ background:#fff;
+ border-radius:20px;
+ overflow:hidden;
+ box-shadow:0 8px 30px #102d1e10;
+}
+.item{
+ padding:18px 20px;
+ border-bottom:1px solid #edf1ed;
+ display:flex;
+ justify-content:space-between;
+ gap:15px;
+ align-items:center;
+}
+.item:last-child{border-bottom:0}
+.title{font-weight:800}
+.meta{font-size:12px;color:#78847c;margin-top:4px}
+.status{
+ display:inline-block;
+ padding:4px 9px;
+ border-radius:20px;
+ font-size:11px;
+}
+.published{background:#dff4e5;color:#176b32}
+.draft{background:#fff0cf;color:#765400}
+.actions button{
+ border:0;
+ background:#edf3ee;
+ border-radius:8px;
+ padding:7px 10px;
+ cursor:pointer;
+ margin-left:4px;
+}
+.actions .delete{color:#a12828}
+.empty{
+ text-align:center;
+ padding:50px;
+ color:#77837b;
+}
+
+@media(max-width:700px){
+ .row{grid-template-columns:1fr}
+ .item{align-items:flex-start;flex-direction:column}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+ <div>
+  <a href="dashboard.html">← Dashboard</a>
+  <b>Content Manager</b>
+ </div>
+ <button onclick="logout()">Logout</button>
+</header>
+
+<main>
+
+<div class="toolbar">
+ <div>
+  <h1>Website Content</h1>
+  <div>Manage your articles, pages and literature.</div>
+ </div>
+ <button class="btn primary" onclick="newContent()">＋ Add Content</button>
+</div>
+
+<section class="editor" id="editor">
+
+<h2 id="editorTitle">Add Content</h2>
+
+<input type="hidden" id="editId">
+
+<div class="row">
+ <div>
+  <label>Title</label>
+  <input id="title" placeholder="Content title">
+ </div>
+
+ <div>
+  <label>Category</label>
+  <select id="category">
+   <option>Literature</option>
+   <option>Article</option>
+   <option>Research</option>
+   <option>Biography</option>
+   <option>Publication</option>
+   <option>News</option>
+   <option>Page</option>
+  </select>
+ </div>
+</div>
+
+<label>Description</label>
+<input id="description" placeholder="Short description">
+
+<label>Content</label>
+<textarea id="body" placeholder="Write your content here..."></textarea>
+
+<label>Status</label>
+<select id="status">
+ <option value="published">Published</option>
+ <option value="draft">Draft</option>
+</select>
+
+<br><br>
+
+<button class="btn primary" onclick="saveContent()">Save Content</button>
+<button class="btn secondary" onclick="closeEditor()">Cancel</button>
+
+</section>
+
+<div class="table" id="list"></div>
+
+</main>
+
+<script>
+if(localStorage.getItem("gouriAdminLoggedIn")!=="true"){
+ location.href="login.html";
+}
+
+let contents=JSON.parse(localStorage.getItem("gouriContent")||"[]");
+
+function save(){
+ localStorage.setItem("gouriContent",JSON.stringify(contents));
+}
+
+function newContent(){
+ document.getElementById("editor").style.display="block";
+ document.getElementById("editorTitle").textContent="Add Content";
+ document.getElementById("editId").value="";
+ document.getElementById("title").value="";
+ document.getElementById("description").value="";
+ document.getElementById("body").value="";
+ document.getElementById("status").value="published";
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function closeEditor(){
+ document.getElementById("editor").style.display="none";
+}
+
+function saveContent(){
+
+ const title=document.getElementById("title").value.trim();
+
+ if(!title){
+   alert("Please enter a title.");
+   return;
+ }
+
+ const id=document.getElementById("editId").value;
+
+ const data={
+   id:id || Date.now().toString(),
+   title:title,
+   category:document.getElementById("category").value,
+   description:document.getElementById("description").value,
+   body:document.getElementById("body").value,
+   status:document.getElementById("status").value,
+   updated:new Date().toISOString()
+ };
+
+ if(id){
+   contents=contents.map(x=>x.id===id ? data : x);
+ }else{
+   contents.unshift(data);
+ }
+
+ save();
+ render();
+ closeEditor();
+
+ alert("Content saved successfully.");
+}
+
+function editContent(id){
+
+ const item=contents.find(x=>x.id===id);
+ if(!item)return;
+
+ document.getElementById("editor").style.display="block";
+ document.getElementById("editorTitle").textContent="Edit Content";
+
+ document.getElementById("editId").value=item.id;
+ document.getElementById("title").value=item.title;
+ document.getElementById("category").value=item.category;
+ document.getElementById("description").value=item.description;
+ document.getElementById("body").value=item.body;
+ document.getElementById("status").value=item.status;
+
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function deleteContent(id){
+
+ if(!confirm("Delete this content?"))return;
+
+ contents=contents.filter(x=>x.id!==id);
+ save();
+ render();
+}
+
+function render(){
+
+ const list=document.getElementById("list");
+
+ if(!contents.length){
+  list.innerHTML='<div class="empty">No content yet.<br>Click "Add Content" to create your first item.</div>';
+  return;
+ }
+
+ list.innerHTML=contents.map(item=>`
+ <div class="item">
+  <div>
+   <div class="title">${escapeHTML(item.title)}</div>
+   <div class="meta">
+    ${escapeHTML(item.category)}
+    ·
+    <span class="status ${item.status}">
+     ${item.status==="published"?"Published":"Draft"}
+    </span>
+   </div>
+  </div>
+
+  <div class="actions">
+   <button onclick="editContent('${item.id}')">Edit</button>
+   <button class="delete" onclick="deleteContent('${item.id}')">Delete</button>
+  </div>
+ </div>
+ `).join("");
+}
+
+function escapeHTML(value){
+ return String(value||"")
+ .replaceAll("&","&amp;")
+ .replaceAll("<","&lt;")
+ .replaceAll(">","&gt;")
+ .replaceAll('"',"&quot;")
+ .replaceAll("'","&#039;");
+}
+
+function logout(){
+ localStorage.removeItem("gouriAdminLoggedIn");
+ location.href="login.html";
+}
+
+render();
+</script>
+
+</body>
+</html>
